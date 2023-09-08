@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="SaveToCloudStorage(event)">
+        <label>Name</label>
+        <input type="text" name="username" id="usernameInputTag" required/>
+        <label>EmailID</label>
+        <input type="email" name="emailid" id="emailInputTag" required>
+        <label>Phone Number</label>
+        <input type="tel" name="contactNo" id="phoneNumberInputTag">
+        <button type="submit">Submit</button>
+    </form>
+    <ul id="ListofItems">ListofItems</ul>
+    <div id="res"></div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        axios.get("https://crudcrud.com/api/8e222301bae045cea3e2e36bbe2abd1c/UserDetails")
+        .then(res=>showOutput(res))
+        .catch(err => console.log(err));
+        function SaveToCloudStorage(event)
+        {
+            event.preventDefault(); 
+            const name = event.target.username.value;
+            const Email = event.target.emailid.value;
+            const Phone = event.target.contactNo.value;
+ /*            localStorage.setItem("username",name);
+            localStorage.setItem("email",Email);
+            localStorage.setItem("contact",Phone); */
+            //end
+            const obj ={
+                Name : name,
+                EmailId :Email,
+                ContactNo : Phone
+            }
+            addUser(obj);
+        function addUser(obj){    
+            axios.post("https://crudcrud.com/api/8e222301bae045cea3e2e36bbe2abd1c/UserDetails",obj)
+        .then(res => Storeuseronscreen(res.data))
+        .catch(err => console.log(err));
+        console.log('POST Request');
+        }
+        }
+        function Storeuseronscreen(obj)
+        {
+
+            const parentEle = document.getElementById('ListofItems');
+            //parentEle.innerHTML =`<li>${obj.name} - ${obj.Email} - ${obj.Phone}</li>`
+            const childEle = document.createElement('li');
+            childEle.textContent = obj.Name + "-" + obj.EmailId + "-" + obj.ContactNo;
+            const deletebtn = document.createElement('input');
+            deletebtn.type = 'button';
+            deletebtn.value = 'delete';
+            deletebtn.onclick =() =>{
+                localStorage.removeItem("userDetails");
+                parentEle.removeChild(childEle);
+            }
+            const Editbtn = document.createElement('input');
+            Editbtn.type ="button";
+            Editbtn.value ="Edit";
+            Editbtn.onclick =() =>{
+                localStorage.removeItem(obj.EmailId);
+                parentEle.removeChild(childEle);
+                document.getElementById('usernameInputTag').value = obj.Name;
+                document.getElementById('emailInputTag').value = obj.EmailId;
+                document.getElementById('phoneNumberInputTag').value = obj.ContactNo;
+
+            }
+            childEle.appendChild(deletebtn);
+            childEle.appendChild(Editbtn);
+            parentEle.appendChild(childEle);
+
+        }
+        function showOutput(res) {
+            document.getElementById('res').innerHTML = `
+            <div class="card card-body mb-4">
+                <h5>Status: ${res.status}</h5>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                Headers
+                </div>
+                <div class="card-body">
+                <pre>${JSON.stringify(res.headers, null, 2)}</pre>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                Data
+                </div>
+                <div class="card-body">
+                <pre>${JSON.stringify(res.data, null, 2)}</pre>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                Config
+                </div>
+                <div class="card-body">
+                <pre>${JSON.stringify(res.config, null, 2)}</pre>
+                </div>
+            </div>
+            `;
+        }
+    </script>
+</body>
+</html>
